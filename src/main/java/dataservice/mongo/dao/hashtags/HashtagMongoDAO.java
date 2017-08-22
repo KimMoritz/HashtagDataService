@@ -168,7 +168,7 @@ class HashtagMongoDAO implements MongoDAO {
         while (outerMongoCursor.hasNext()){
             Document document = (Document) outerMongoCursor.next();
             List<Document> list = (ArrayList<Document>) document.get("hashtags");
-            HashMap<String, Integer> hashtagHashMap = new HashMap<>();
+            Map <String, Integer> hashtagHashMap = new HashMap<>();
             for (Document d: list){
                 String hashtagString = d.getString("hashtag");
                 if(hashtagHashMap.containsKey(hashtagString)){
