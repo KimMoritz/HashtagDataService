@@ -79,14 +79,14 @@ class HashtagMongoDAO implements MongoDAO {
                 Document document = (Document) mongoCursor.next();
                 ArrayList<Document> arrayList = (ArrayList<Document>) document.get("hashtags");
                 if(arrayList != null){
-                    for(Document d: arrayList){
-                        if(d.getString("hashtag").equals(hashtag)){
+                    for(int i =0; i<arrayList.size(); i++){
+                        if(arrayList.get(i).getString("hashtag").equals(hashtag)){
                             Date date = (Date) document.get("timestamp");
                             Date now = new Date();
                             long timeAgo = now.getTime() - date.getTime();
                             timeAgo = timeAgo/(60*60*1000);
                             xvals.put(timeAgo);
-                            int occurrences = (int) d.get("occurrences");
+                            int occurrences = (int) arrayList.get(i).get("occurrences");
                             yvals.put(occurrences);
                         }
                     }
