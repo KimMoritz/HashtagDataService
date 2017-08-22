@@ -148,8 +148,7 @@ class HashtagMongoDAO implements MongoDAO {
             Document curr = (Document) mongoCursor.next();
             List<Document> hashtags = (ArrayList) curr.get("hashtags");
             Date currDate = (Date) curr.get("timestamp");
-            long lteHour = /*new Date().getTime()*/ currDate.getTime() - 1000*60*60;
-            Date queryDate = new Date (lteHour);
+            Date queryDate = new Date (currDate.getTime() - 1000*60*60);
             Document updateQuery = new Document().append("timestamp", new Document("$gte", queryDate));
             Document movedDoc = new Document().append("$push", new Document("hashtags", hashtags.get(0)));
             UpdateResult updateResult = greaterthanh.updateOne(updateQuery, movedDoc);
@@ -160,7 +159,6 @@ class HashtagMongoDAO implements MongoDAO {
             }
             deleteInner(lessthanh, curr);
         }
-
     }
 
     private void aggregateHashtags(MongoCollection greaterthanh){
