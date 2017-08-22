@@ -163,32 +163,7 @@ class HashtagMongoDAO implements MongoDAO {
 
     }
 
-    private void aggregateHashtags(MongoCollection greaterthanh) {
-        MongoCursor outerMongoCursor = greaterthanh.find().iterator();
-        while (outerMongoCursor.hasNext()){
-            Document document = (Document) outerMongoCursor.next();
-            List<Document> list = (ArrayList<Document>) document.get("hashtags");
-            Set <String> hashtags = new HashSet();
-            for (Document document1: list){
-                hashtags.add((String) document1.get("hashtag"));
-            }
-            for(String hashtag: hashtags){
-                int occurrences =0;
-                for(Document document1:list){
-                    if(document1.get("hashtag").equals(hashtag)){
-                        occurrences = occurrences + document1.getInteger("occurrences");
-                    }
-                }
-                ObjectId objectId = (ObjectId) document.get("_id");
-                greaterthanh.updateOne(new Document("_id", objectId),new Document("$pull", new Document("hashtags",
-                        new Document("hashtag", hashtag))));
-                greaterthanh.updateOne(new Document("_id", objectId),new Document("$push", new Document("hashtags",
-                        new Document("hashtag", hashtag).append("occurrences", occurrences))));
-            }
-        }
-    }
-
-    private void aggregateHashtags2(MongoCollection greaterthanh){
+    private void aggregateHashtags(MongoCollection greaterthanh){
         MongoCursor outerMongoCursor = greaterthanh.find().iterator();
         while (outerMongoCursor.hasNext()){
             Document document = (Document) outerMongoCursor.next();
@@ -196,16 +171,20 @@ class HashtagMongoDAO implements MongoDAO {
             HashMap<String, Integer> hashtagHashMap = new HashMap<>();
             for (Document d: list){
                 String hashtagString = d.getString("hashtag");
-                int currOccurences = hashtagHashMap.get(hashtagString);
-                hashtagHashMap.put(hashtagString, currOccurences + d.getInteger("occurrences"));
+                if(hashtagHashMap.containsKey(hashtagString)){
+                    int currOccurences = hashtagHashMap.get(hashtagString);
+                    hashtagHashMap.put(hashtagString, currOccurences + d.getInteger("occurrences"));
+                }else{
+                    hashtagHashMap.put(hashtagString, d.getInteger("occurrences"));
+                }
             }
-
             for (String hashtagString :hashtagHashMap.keySet()){
                 ObjectId objectId = (ObjectId) document.get("_id");
                 greaterthanh.updateOne(new Document("_id", objectId),new Document("$pull", new Document("hashtags",
                         new Document("hashtag", hashtagString))));
                 greaterthanh.updateOne(new Document("_id", objectId),new Document("$push", new Document("hashtags",
-                        new Document("hashtag", hashtagString).append("occurrences", hashtagHashMap.get(hashtagString)))));
+                        new Document("hashtag", hashtagString)
+                                .append("occurrences", hashtagHashMap.get(hashtagString)))));
             }
 
         }
