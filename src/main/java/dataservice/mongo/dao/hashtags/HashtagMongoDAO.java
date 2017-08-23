@@ -188,7 +188,6 @@ class HashtagMongoDAO implements MongoDAO {
         }
     }
 
-
     private void moveToCurr(MongoCollection lessthanh, Document curr, String hashtag, Document innerDoc) {
         Date innerDate = (Date) innerDoc.get("timestamp");
         Date currDate = (Date) curr.get("timestamp");
