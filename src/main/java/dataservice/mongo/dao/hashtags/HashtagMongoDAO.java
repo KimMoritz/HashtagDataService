@@ -63,13 +63,19 @@ class HashtagMongoDAO implements MongoDAO {
         Date date = new Date();
         date.setTime(date.getTime()-nUnits*60*60*1000);
         BasicDBObject query = new BasicDBObject( "timestamp",new BasicDBObject("$gte",date));
-        MongoCursor mongoCursor = mongoCollection.find(query).iterator();
-        JSONArray xvals = new JSONArray();
-        JSONArray yvals = new JSONArray();
-        populateXY(mongoCursor, hashtag, xvals, yvals);
-        JSONObject reply = new JSONObject()
-                .put("xvals", xvals)
-                .put("yvals", yvals);
+        JSONObject reply = new JSONObject();
+        try{
+            MongoCursor mongoCursor = mongoCollection.find(query).iterator();
+            JSONArray xvals = new JSONArray();
+            JSONArray yvals = new JSONArray();
+            populateXY(mongoCursor, hashtag, xvals, yvals);
+            reply = new JSONObject()
+                    .put("xvals", xvals)
+                    .put("yvals", yvals);
+        }catch (NullPointerException e){
+            reply.put("xvals", 0).put("yvals", 0);
+            return reply;
+        }
         return reply;
     }
 
