@@ -27,18 +27,14 @@ public class HashtagFetcher {
 
     private Connection connection;
 
-    public HashtagFetcher(){
+    public HashtagFetcher() throws JMSException {
         ResourceBundle resourceBundle = ResourceBundle.getBundle("application");
         ActiveMQConnectionFactory activeMQConnectionFactory = new ActiveMQConnectionFactory(resourceBundle.getString("spring.activemq.broker-url"));
-        try {
             connection = activeMQConnectionFactory.createConnection();
             connection.start();
-        } catch (JMSException e) {
-            e.printStackTrace();
-        }
     }
 
-    public void receiveAndInsert(){
+    public void receiveAndInsert() throws JMSException {
         TextMessage textMessage = fetchTextMessage();
         MongoDAO fetcherMongoDao2 = HashtagongoDAOFactory.mongoDAO();
         if(textMessage != null){
@@ -50,17 +46,13 @@ public class HashtagFetcher {
         }
     }
 
-    private TextMessage fetchTextMessage() {
+    private TextMessage fetchTextMessage() throws JMSException {
         TextMessage response = null;
-        try {
             Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
             Destination destination = session.createQueue("hashtagMongoQueue");
             MessageConsumer consumer = session.createConsumer(destination);
             response = (TextMessage) consumer.receive(1000);
             session.close();
-        } catch (JMSException e) {
-            e.printStackTrace();
-        }
         return response;
     }
 }
